@@ -1,3 +1,5 @@
+
+
 var faction = {
   name: '',
   logo: '',
