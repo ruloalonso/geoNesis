@@ -3,16 +3,47 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>repl.it</title>
-    <link href="index.css" rel="stylesheet" type="text/css" />
+    <title>geoNesys</title>
+    <link href="css/index.css" rel="stylesheet" type="text/css" />
+    <script src="js/models/game.js"></script>
+    <script src="js/models/player.js"></script>
+    <script src="js/models/card.js"></script>
+    <script src="js/models/unit.js"></script>
+    <script src="js/models/hero.js"></script>
+    <script src="js/index.js"></script>
   </head>
   <body>
-    <h1>Hello Ge-O-nesys</h1>
-    <button id="revel">Add revel</button>
-    <button id="inq">Add Inquisitor</button>
-    <button id="war">War!</button>
-    <script src="index.js"></script>
+    <h1>Hello geoNesys</h1>
+    <div class="board">
+      <div class="range">
+        <div class="zone"></div>
+        <div class="zone"></div>
+        <div class="zone"></div>
+      </div>
+      <div class="assault">
+        <div class="zone"></div>
+        <div class="zone"></div>
+        <div class="zone"></div>
+      </div>
+      <div class="melee">
+        <div class="zone"></div>
+        <div class="zone"></div>
+        <div class="zone"></div>
+      </div>
+      <div class="assault">
+        <div class="zone"></div>
+        <div class="zone"></div>
+        <div class="zone"></div>
+      </div>
+      <div class="range">
+        <div class="zone"></div>
+        <div class="zone"></div>
+        <div class="zone"></div>
+      </div>
+    </div>
+    <div class="buttons">
+      <button id="startGame">Start game</button>
+      <button id="passTurn">Pass turn</button>    
+    </div>
   </body>
 </html>
-
-
