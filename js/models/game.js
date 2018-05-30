@@ -7,6 +7,7 @@ function Game () {
 }
 
 Game.prototype.startGame = function() {
+  if (this.turnCounter !== null) return false;
   this.activePhase = this.phases[0];
   this.activePlayer = 1;
   this.turnCounter = 1;
