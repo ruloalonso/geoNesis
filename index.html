@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width">
     <title>geoNesys</title>
     <link href="css/index.css" rel="stylesheet" type="text/css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/models/board.js"></script>
+    <script src="js/models/zone.js"></script>
     <script src="js/models/game.js"></script>
     <script src="js/models/player.js"></script>
     <script src="js/models/card.js"></script>
@@ -16,7 +19,7 @@
     <h1>Hello geoNesys</h1>
     <div class="board">
       <div class="range">
-        <div class="zone"></div>
+        <div id="hola" class="zone"></div>
         <div class="zone"></div>
         <div class="zone"></div>
       </div>
@@ -40,6 +43,13 @@
         <div class="zone"></div>
         <div class="zone"></div>
       </div>
+    </div>
+    <div class="display">
+      <p>Welcome to GEONESYS!!!</p>
+    </div>
+    <div class="buttons">
+      <button id="addInquisitorLeader">Add Inquisitor Leader</button>
+      <button id="addRevelLeader">Add Revel Leader</button>
     </div>
     <div class="buttons">
       <button id="startGame">Start game</button>
