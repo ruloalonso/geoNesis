@@ -109,13 +109,15 @@ Game.prototype.addLeader = function(hero, player) {
 
 Game.prototype.drawHero = function(hero) {
   // $("range1 zone:first-child").
-  var x = hero.x + 1;
-  var y = hero.y + 1;
+  var x = hero.x;
+  var y = hero.y;
+  var col = $(".board").children()[x];
+  var zone = $(col).children()[y];
   
   var selector = '.board:nth-child(' + x + '):nth-child('+y+')';
-  debugger;
-  $().find('')
+  // debugger;
+  console.log(zone);
 
   var src = "img/" + hero.img;
-  $(selector1).prepend('<img id="theImg" src="' + src + '" height="140px"/>')
+  $(zone).prepend('<img id="theImg" src="' + src + '" height="140px"/>')
 }
