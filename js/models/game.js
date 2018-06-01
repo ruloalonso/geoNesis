@@ -7,6 +7,7 @@ function Game () {
   this.display = null;
   this.warning = false;
   this.board = new Board();
+  this.interval = null;
 }
 
 Game.prototype.startGame = function() {
@@ -46,6 +47,7 @@ Game.prototype.passTurn = function() {
   this.print("Your turn has finished");
   if (this.activePlayer.faction === "inquisitors") {
     this.activePlayer = this.players[1];
+    this.makeClickable();
     this.print("It's Revels turn #" + this.turnCounter);
   } else {
     this.activePlayer = this.players[0];
@@ -83,6 +85,7 @@ Game.prototype.setListeners = function() {
 }
 
 Game.prototype.print = function(message) {
+  clearInterval(this.interval);
   this.display.text(message);
 }
 
@@ -91,7 +94,7 @@ Game.prototype.warn = function(message) {
   this.warning = true;
   var preText = this.display.text();
   this.print("WARNING! " + message);
-  setTimeout(function(){
+  this.interval = setTimeout(function(){
     this.warning = false; 
     this.print(preText);
   }.bind(this), 3000);
@@ -108,16 +111,19 @@ Game.prototype.addLeader = function(hero, player) {
 }
 
 Game.prototype.drawHero = function(hero) {
-  // $("range1 zone:first-child").
-  var x = hero.x;
-  var y = hero.y;
-  var col = $(".board").children()[x];
-  var zone = $(col).children()[y];
-  
-  var selector = '.board:nth-child(' + x + '):nth-child('+y+')';
-  // debugger;
-  console.log(zone);
-
+  var zone = this.getZone(hero.x, hero.y);
   var src = "img/" + hero.img;
-  $(zone).prepend('<img id="theImg" src="' + src + '" height="140px"/>')
+  $(zone).append('<img id="theImg" src="' + src + '" height="140px"/>');
+}
+
+Game.prototype.makeClickable = function() {
+  var hero = this.activePlayer.hero;
+  var zone = this.getZone(hero.x, hero.y);
+  $(zone).toggleClass(clickable);
+  debugger;
+}
+
+Game.prototype.getZone = function(x, y) {
+  var col = $(".board").children()[x];
+  return zone = $(col).children()[y];   
 }
