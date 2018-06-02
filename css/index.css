@@ -44,6 +44,10 @@ h1 {
   cursor: pointer;
 }
 
+.selectable {
+  background-color: lightgrey;
+}
+
 .selected {
   border: 2px solid red;
 }

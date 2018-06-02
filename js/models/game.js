@@ -43,20 +43,20 @@ Game.prototype.passTurn = function() {
     return false;
   }
   this.selectedHero = null;
-  this.fixMessage = "You got X actions remaining";
+  this.fixMessage = "You got " + this.activePlayer.actions + " actions remaining";
   this.toggleClickable(this.activePlayer.leader);
   if (this.activePlayer.faction === "inquisitors") {
     this.activePlayer = this.players[1];
     this.toggleClickable(this.activePlayer.leader);
     this.setClickListener(this.activePlayer.leader);
-    this.fixMessage = "You got X actions remaining";  
+    this.fixMessage = "You got " + this.activePlayer.actions + " actions remaining";
     this.warn("Your turn has finished. It's Revels turn #" + this.turnCounter);
   } else {
     this.activePlayer = this.players[0];
     this.toggleClickable(this.activePlayer.leader);
     this.turnCounter++;
     this.setClickListener(this.activePlayer.leader);
-    this.fixMessage = "You got X actions remaining";  
+    this.fixMessage = "You got " + this.activePlayer.actions + " actions remaining";
     this.warn("Your turn has finished. It's Inquisitors turn #" + this.turnCounter);
   }
 }
@@ -98,16 +98,20 @@ Game.prototype.drawHero = function(hero) {
 Game.prototype.toggleClickable = function(hero) {
   var zone = this.getZone(hero.x, hero.y);
   $(zone).children().toggleClass("clickable");
-  // $(zone).children().click(function() {$(zone).children().toggleClass("selected")}.bind(this));
+}
+
+Game.prototype.toggleSelected = function(hero) {
+  var zone = this.getZone(hero.x, hero.y);
+  $(zone).children().toggleClass("selected");
 }
 
 Game.prototype.setClickListener = function(hero) {
   var zone = this.getZone(hero.x, hero.y);
   $(zone).children().click(function() {
-    $(zone).children().toggleClass("selected");
+    this.toggleSelected(hero);
     if (this.selectedHero) {
       this.selectedHero = null;
-      this.fixMessage = "You got X actions remaining";
+      this.fixMessage = "You got " + this.activePlayer.actions + " actions remaining";
       this.print(this.fixMessage);
     } else {
       this.selectedHero = hero;
@@ -117,12 +121,36 @@ Game.prototype.setClickListener = function(hero) {
   }.bind(this));
 };
 
+Game.prototype.removeClickListener = function(hero) {
+  var zone = this.getZone(hero.x, hero.y);
+  $(zone).children().off('click');
+}
+
 Game.prototype.getZone = function(x, y) {
   var col = $(".board").children()[x];
   return zone = $(col).children()[y];   
 }
 
 Game.prototype.checkZonesToMove = function(hero) {
+  this.fixMessage = "Select where you want to move " + hero.name;
+  this.print(this.fixMessage);
+  return this.board.checkMovility(hero);
+}
+
+Game.prototype.setListeners = function() {
+  $(document).ready(function() {
+    mockInquisitorHero = new Hero("Perry Williams", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 1, 1);
+    mockRevelHero = new Hero("Harry Jovi", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1);
+    $("#startBattle").click(function(){game.startBattle()});
+    $("#passTurn").click(function(){game.passTurn()});
+    $("#addInquisitorLeader").click(function(){game.addLeader(mockInquisitorHero, game.players[0])});
+    $("#addRevelLeader").click(function(){game.addLeader(mockRevelHero, game.players[1])});
+    $("#moveHero").click(function(){game.previewMove(game.selectedHero)});
+    game.display = $(".display p");
+  });
+}
+
+Game.prototype.previewMove = function(hero) {
   if (this.activePhase !== "battle") {
     this.warn("You can't move any hero, The Battle hasn't started yet!");
     return false;
@@ -130,35 +158,34 @@ Game.prototype.checkZonesToMove = function(hero) {
   if (this.selectedHero === null) {
     this.warn("You must select a Hero before moving it!");
     return false;
-  }  
-  this.fixMessage = "Select where you want to move " + hero.name;
-  this.print(this.fixMessage);
-  this.board.checkMovility(hero);
-}
-
-Game.prototype.setListeners = function() {
-  $(document).ready(function() {
-    mockInquisitorHero = new Hero("Perry Williams", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 1, 1);
-    mockRevelHero = new Hero("Harry Jovi", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1);
-    document.getElementById("startBattle").onclick = function(){
-      game.startBattle();
-    }
-    document.getElementById("passTurn").onclick = function(){
-      game.passTurn();
-    }
-    document.getElementById("addInquisitorLeader").onclick = function(){
-      game.addLeader(mockInquisitorHero, game.players[0]);  
-    }
-    document.getElementById("addRevelLeader").onclick = function(){
-      game.addLeader(mockRevelHero, game.players[1]);
-    }
-    document.getElementById("moveHero").onclick = function(){
-      game.checkZonesToMove(game.selectedHero);     
-    }
-    game.display = $(".display p");
+  }
+  this.checkZonesToMove(hero).forEach(zone => {
+    zone = this.getZone(zone[0], zone[1]);
+    $(zone).addClass("clickable selectable");
+    $(zone).click(function(clicked){
+      console.log(clicked.target.dataset.x);
+      this.moveHero(hero, clicked.target.dataset.x, clicked.target.dataset.y)}.bind(this));
   });
+  this.toggleClickable(hero);
+  this.toggleSelected(hero);
+  this.removeClickListener(hero);
+
+  // $(this.getZone(hero.x, hero.y)).children().click(function() {
+  //   this.cancelAction();
+  // }.bind(this));     
 }
 
+Game.prototype.moveHero = function(hero, x, y) {
+  alert("jarl" + x + y);
+}
+
+// Game.prototype.cancelAction = function() {
+//   this.board.getAllZones().forEach(function(zone) {
+//     $(this.getZone(zone[0], zone[1])).removeClass("clickable selectable");
+//   }.bind(this));
+//   this.warn("Action cancelled!");
+//   this.setClickListener(this.activePlayer.leader);
+// }
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
