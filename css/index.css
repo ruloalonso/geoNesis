@@ -43,3 +43,7 @@ h1 {
 .clickable {
   cursor: pointer;
 }
+
+.selected {
+  border: 2px solid red;
+}

@@ -9,6 +9,7 @@ function Game () {
   this.interval = null;
   this.fixMessage = "Welcome to GEONESYS!!! Choose your leaders";
   this.leaderCount = 0;
+  this.selectedHero = null;
 }
 
 Game.prototype.startBattle = function() {
@@ -24,6 +25,7 @@ Game.prototype.startBattle = function() {
   this.activePlayer = this.players[0];
   this.activePase = this.phases[1];
   this.turnCounter = 1;
+  this.toggleClickable(this.activePlayer.leader);
   this.fixMessage = "You got X actions remaining";
   this.warn("Battle started!!! It's Inquisitors turn #1");
 }
@@ -40,12 +42,14 @@ Game.prototype.passTurn = function() {
     return false;
   }
   this.fixMessage = "You got X actions remaining";
+  this.toggleClickable(this.activePlayer.leader);
   if (this.activePlayer.faction === "inquisitors") {
     this.activePlayer = this.players[1];
-    // this.makeClickable();
+    this.toggleClickable(this.activePlayer.leader);
     this.warn("Your turn has finished. It's Revels turn #" + this.turnCounter);
   } else {
     this.activePlayer = this.players[0];
+    this.toggleClickable(this.activePlayer.leader);
     this.turnCounter++;
     this.warn("Your turn has finished. It's Inquisitors turn #" + this.turnCounter);
   }
@@ -57,26 +61,6 @@ Game.prototype.checkGameover = function() {
   } else {
     return false;
   }
-}
-
-Game.prototype.setListeners = function() {
-  $(document).ready(function() {
-    mockInquisitorHero = new Hero("Perry Williams", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 0, 1);
-    mockRevelHero = new Hero("Harry Jovi", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1);
-    document.getElementById("startBattle").onclick = function(){
-      game.startBattle();
-    }
-    document.getElementById("passTurn").onclick = function(){
-      game.passTurn();
-    }
-    document.getElementById("addInquisitorLeader").onclick = function(){
-      game.addLeader(mockInquisitorHero, game.players[0]);  
-    }
-    document.getElementById("addRevelLeader").onclick = function(){
-      game.addLeader(mockRevelHero, game.players[1]);
-    }
-    game.display = $(".display p");
-  });
 }
 
 Game.prototype.print = function(message) {
@@ -110,20 +94,60 @@ Game.prototype.addLeader = function(hero, player) {
 Game.prototype.drawHero = function(hero) {
   var zone = this.getZone(hero.x, hero.y);
   var src = "img/" + hero.img;
-  $(zone).append('<img id="theImg" src="' + src + '" height="140px"/>');
+  $(zone).append('<img id="theImg" src="' + src + '" height="100px"/>');
 }
 
-// Game.prototype.makeClickable = function() {
-//   var hero = this.activePlayer.hero;
-//   var zone = this.getZone(hero.x, hero.y);
-//   $(zone).toggleClass(clickable);
-//   debugger;
-// }
+Game.prototype.toggleClickable = function(hero) {
+  var zone = this.getZone(hero.x, hero.y);
+  $(zone).children().toggleClass("clickable");
+  $(zone).children().click(function() {
+    $(zone).children().toggleClass("selected");
+    this.selectedHero = hero;    
+  }.bind(this));
+}
 
 Game.prototype.getZone = function(x, y) {
   var col = $(".board").children()[x];
   return zone = $(col).children()[y];   
 }
+
+Game.prototype.checkZonesToMove = function(hero) {
+  this.fixMessage = "Select where you want to move your hero";
+  this.print(this.fixMessage);
+  
+
+}
+
+
+
+
+Game.prototype.setListeners = function() {
+  $(document).ready(function() {
+    mockInquisitorHero = new Hero("Perry Williams", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 0, 1);
+    mockRevelHero = new Hero("Harry Jovi", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1);
+    document.getElementById("startBattle").onclick = function(){
+      game.startBattle();
+    }
+    document.getElementById("passTurn").onclick = function(){
+      game.passTurn();
+    }
+    document.getElementById("addInquisitorLeader").onclick = function(){
+      game.addLeader(mockInquisitorHero, game.players[0]);  
+    }
+    document.getElementById("addRevelLeader").onclick = function(){
+      game.addLeader(mockRevelHero, game.players[1]);
+    }
+    document.getElementById("moveHero").onclick = function(){
+      if (game.selectedHero === null) {
+        game.warn('YOu must select a hero before');
+      } else {
+        game.checkZonesToMove(game.selectedHero);
+      }      
+    }
+    game.display = $(".display p");
+  });
+}
+
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
