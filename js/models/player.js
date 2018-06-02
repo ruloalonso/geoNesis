@@ -4,7 +4,5 @@ function Player (faction) {
 }
 
 Player.prototype.addLeader = function(heroe) {
-  if (this.leader !== null) return false;
   this.leader = heroe;
-  return true;
 }
