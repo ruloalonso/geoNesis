@@ -1,11 +1,11 @@
 function Game () {
   this.phases = ["army", "battle"];
   this.activePhase = null;
-  this.activePlayer = null;
   this.players = [new Player("inquisitors"), new Player("revels")];
+  this.activePlayer = null;
   this.turnCounter = null;
   this.display = null;
-  this.board = new Board();
+  this.board = new Board(5, 3);
   this.interval = null;
   this.fixMessage = "Welcome to GEONESYS!!! Choose your leaders";
   this.leaderCount = 0;
@@ -27,7 +27,7 @@ Game.prototype.startBattle = function() {
   this.turnCounter = 1;
   this.toggleClickable(this.activePlayer.leader);
   this.setClickListener(this.activePlayer.leader);
-  this.fixMessage = "You got X actions remaining";
+  this.fixMessage = "You got " + this.activePlayer.actions +" actions remaining";
   this.warn("Battle started!!! It's Inquisitors turn #1");
 }
 
@@ -104,7 +104,6 @@ Game.prototype.toggleClickable = function(hero) {
 Game.prototype.setClickListener = function(hero) {
   var zone = this.getZone(hero.x, hero.y);
   $(zone).children().click(function() {
-    debugger;
     $(zone).children().toggleClass("selected");
     if (this.selectedHero) {
       this.selectedHero = null;
@@ -134,11 +133,12 @@ Game.prototype.checkZonesToMove = function(hero) {
   }  
   this.fixMessage = "Select where you want to move " + hero.name;
   this.print(this.fixMessage);
+  this.board.checkMovility(hero);
 }
 
 Game.prototype.setListeners = function() {
   $(document).ready(function() {
-    mockInquisitorHero = new Hero("Perry Williams", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 0, 1);
+    mockInquisitorHero = new Hero("Perry Williams", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 1, 1);
     mockRevelHero = new Hero("Harry Jovi", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1);
     document.getElementById("startBattle").onclick = function(){
       game.startBattle();
