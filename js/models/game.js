@@ -44,15 +44,15 @@ Game.prototype.passTurn = function() {
     this.warn("You can't pass turn, The Battle hasn't started yet");
     return false;
   }
-  this.print("Your turn has finished");
+  this.print("");
   if (this.activePlayer.faction === "inquisitors") {
     this.activePlayer = this.players[1];
     this.makeClickable();
-    this.print("It's Revels turn #" + this.turnCounter);
+    this.print("Your turn has finished. It's Revels turn #" + this.turnCounter);
   } else {
     this.activePlayer = this.players[0];
     this.turnCounter++;
-    this.print("It's Inquisitors turn #" + this.turnCounter);
+    this.print("Your turn has finished. It's Inquisitors turn #" + this.turnCounter);
   }
 }
 
@@ -101,12 +101,13 @@ Game.prototype.warn = function(message) {
 }
 
 Game.prototype.addLeader = function(hero, player) {
+  var faction = capitalizeFirstLetter(player.faction);
   if (player.addLeader(hero)) {
     this.board.zones[hero.x][hero.y].heroes.push(hero);
-    this.print(hero.name + " added to Inquisitor's army");
+    this.print(hero.name + " added to " + faction + "'s army");
     this.drawHero(hero);
   } else {
-    this.warn("Inquisitor's army already has a Leader");
+    this.warn(faction + "'s army already has a Leader");
   } 
 }
 
@@ -126,4 +127,8 @@ Game.prototype.makeClickable = function() {
 Game.prototype.getZone = function(x, y) {
   var col = $(".board").children()[x];
   return zone = $(col).children()[y];   
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
