@@ -11,5 +11,6 @@ function Unit (name, img, description, meleeDamage, rangeDamage, health, faction
 }
 
 Unit.prototype.move = function(x, y) {
-  this.position = [x, y];
+  this.x = x;
+  this.y = y;
 }

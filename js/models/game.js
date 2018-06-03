@@ -27,7 +27,7 @@ Game.prototype.startBattle = function() {
   this.turnCounter = 1;
   this.toggleClickable(this.activePlayer.leader);
   this.setClickListener(this.activePlayer.leader);
-  this.fixMessage = "You got " + this.activePlayer.actions +" actions remaining";
+  this.fixMessage = "You got " + this.activePlayer.getActions() +" actions remaining";
   this.warn("Battle started!!! It's Inquisitors turn #1");
 }
 
@@ -42,21 +42,23 @@ Game.prototype.passTurn = function() {
     this.warn("You can't pass turn, The Battle hasn't started yet!");
     return false;
   }
+  this.activePlayer.resetActions();
+  this.removeClickListener(this.activePlayer.leader);
   this.selectedHero = null;
-  this.fixMessage = "You got " + this.activePlayer.actions + " actions remaining";
+  this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
   this.toggleClickable(this.activePlayer.leader);
   if (this.activePlayer.faction === "inquisitors") {
     this.activePlayer = this.players[1];
     this.toggleClickable(this.activePlayer.leader);
     this.setClickListener(this.activePlayer.leader);
-    this.fixMessage = "You got " + this.activePlayer.actions + " actions remaining";
+    this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
     this.warn("Your turn has finished. It's Revels turn #" + this.turnCounter);
   } else {
     this.activePlayer = this.players[0];
     this.toggleClickable(this.activePlayer.leader);
     this.turnCounter++;
     this.setClickListener(this.activePlayer.leader);
-    this.fixMessage = "You got " + this.activePlayer.actions + " actions remaining";
+    this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
     this.warn("Your turn has finished. It's Inquisitors turn #" + this.turnCounter);
   }
 }
@@ -75,7 +77,7 @@ Game.prototype.warn = function(message) {
 }
 
 Game.prototype.addLeader = function(hero, player) {
-  var faction = capitalizeFirstLetter(player.faction);
+  var faction = this.capitalizeFirstLetter(player.faction);
   if (player.leader === null) {
     player.addLeader(hero);
     this.leaderCount++;
@@ -95,6 +97,11 @@ Game.prototype.drawHero = function(hero) {
   $(zone).append('<img id="theImg" src="' + src + '" height="100px"/>');
 }
 
+Game.prototype.deleteHero = function(hero) {
+  var zone = this.getZone(hero.x, hero.y);
+  $(zone).children().remove();
+}
+
 Game.prototype.toggleClickable = function(hero) {
   var zone = this.getZone(hero.x, hero.y);
   $(zone).children().toggleClass("clickable");
@@ -107,11 +114,12 @@ Game.prototype.toggleSelected = function(hero) {
 
 Game.prototype.setClickListener = function(hero) {
   var zone = this.getZone(hero.x, hero.y);
+  debugger;
   $(zone).children().click(function() {
     this.toggleSelected(hero);
     if (this.selectedHero) {
       this.selectedHero = null;
-      this.fixMessage = "You got " + this.activePlayer.actions + " actions remaining";
+      this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
       this.print(this.fixMessage);
     } else {
       this.selectedHero = hero;
@@ -162,21 +170,40 @@ Game.prototype.previewMove = function(hero) {
   this.checkZonesToMove(hero).forEach(zone => {
     zone = this.getZone(zone[0], zone[1]);
     $(zone).addClass("clickable selectable");
-    $(zone).click(function(clicked){
-      console.log(clicked.target.dataset.x);
-      this.moveHero(hero, clicked.target.dataset.x, clicked.target.dataset.y)}.bind(this));
+    $(zone).click(function(clicked) {
+      this.moveHero(hero, clicked.target.dataset.x, clicked.target.dataset.y)
+    }.bind(this));
   });
   this.toggleClickable(hero);
   this.toggleSelected(hero);
   this.removeClickListener(hero);
 
-  // $(this.getZone(hero.x, hero.y)).children().click(function() {
-  //   this.cancelAction();
-  // }.bind(this));     
+}
+
+Game.prototype.clearBoard = function() {
+  var zones = this.board.getAllZones();
+  zones.forEach(zone => {
+    zone = this.getZone(zone[0], zone[1]);
+    $(zone).removeClass("clickable selectable");
+    $(zone).off('click');
+  });
 }
 
 Game.prototype.moveHero = function(hero, x, y) {
-  alert("jarl" + x + y);
+  this.activePlayer.actions--;
+  this.deleteHero(hero);
+  hero.move(x, y);
+  this.drawHero(hero);
+  this.clearBoard();
+  this.selectedHero = null;
+  this.toggleClickable(hero);
+  this.setClickListener(hero);
+  this.warn(hero.name + " moved!");
+  this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
+}
+
+Game.prototype.capitalizeFirstLetter = function(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // Game.prototype.cancelAction = function() {
@@ -187,6 +214,9 @@ Game.prototype.moveHero = function(hero, x, y) {
 //   this.setClickListener(this.activePlayer.leader);
 // }
 
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
+// $(this.getZone(hero.x, hero.y)).children().click(function() {
+//   this.cancelAction();
+// }.bind(this));     
+
+
+
