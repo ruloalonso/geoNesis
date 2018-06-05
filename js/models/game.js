@@ -23,7 +23,7 @@ Game.prototype.startBattle = function() {
   this.activePlayer = this.players[0];
   this.activePhase = "battle";
   this.turnCounter = 1;
-  this.toggleClickable(this.activePlayer.leader);
+  this.activePlayer.leader.toggleClickable();
   this.setClickListener(this.activePlayer.leader);
   this.checkActionsRemaining();
   this.warn("Battle started!!!");
@@ -38,6 +38,21 @@ Game.prototype.checkPhase = function() {
     };
   }    
 }
+
+Game.prototype.setClickListener = function(hero) {
+  hero.div.click(function() {
+    hero.toggleSelected();
+    if (this.selectedHero) {
+      this.selectedHero = null;
+      this.checkActionsRemaining();
+      this.print(this.fixMessage);
+    } else {
+      this.selectedHero = hero;
+      this.fixMessage = hero.name + " is selected. Now choose an action to perform";
+      this.print(this.fixMessage);
+    };
+  }.bind(this));
+};
 
 Game.prototype.checkActionsRemaining = function() {
   this.fixMessage = "It's " + this.capitalizeFirstLetter(this.activePlayer.faction) + " turn #" + this.turnCounter + ". You got " + this.activePlayer.actions + " actions remaining";
@@ -59,15 +74,15 @@ Game.prototype.passTurn = function() {
     this.selectedHero = null;
   }  
   this.activePlayer.resetActions();
-  this.removeClickListener(this.activePlayer.leader);
-  this.toggleClickable(this.activePlayer.leader);
+  this.activePlayer.leader.removeClickListener();
+  this.activePlayer.leader.toggleClickable();
   if (this.activePlayer.faction === "inquisitors") {
     this.activePlayer = this.players[1];
   } else {
     this.activePlayer = this.players[0];
     this.turnCounter++;
   }
-  this.toggleClickable(this.activePlayer.leader);
+  this.activePlayer.leader.toggleClickable();
   this.setClickListener(this.activePlayer.leader);
   this.checkActionsRemaining();
   this.warn("Turn passed!");
@@ -95,55 +110,11 @@ Game.prototype.addLeader = function(hero, player) {
     this.warn(hero.name + " added to " + faction + " army");
     if (this.leaderCount == 1) this.fixMessage = "Choose the other's army leader";
     if (this.leaderCount == 2) this.fixMessage = "All armys are setted up! Now you can start The Battle when you are ready";
-    this.drawHero(hero);
+    hero.draw();
   } else {
     this.warn(faction + " army already has a Leader");
   } 
 }
-
-Game.prototype.drawHero = function(hero) {
-  var zone = this.board.getZone(hero.x, hero.y);
-  var src = "img/" + hero.img;
-  $(zone).append('<div class="hero"><img src="' + src + '"/></div>');
-}
-
-Game.prototype.deleteHero = function(hero) {
-  var zone = this.board.getZone(hero.x, hero.y);
-  $(zone).children().remove();
-}
-
-Game.prototype.toggleClickable = function(hero) {
-  var zone = this.board.getZone(hero.x, hero.y);
-  $(zone).children().toggleClass("clickable");
-}
-
-Game.prototype.toggleSelected = function(hero) {
-  var zone = this.board.getZone(hero.x, hero.y);
-  $(zone).children().toggleClass("selected");
-}
-
-Game.prototype.setClickListener = function(hero) {
-  var zone = this.board.getZone(hero.x, hero.y);
-  $(zone).children().click(function() {
-    this.toggleSelected(hero);
-    if (this.selectedHero) {
-      this.selectedHero = null;
-      this.checkActionsRemaining();
-      this.print(this.fixMessage);
-    } else {
-      this.selectedHero = hero;
-      this.fixMessage = hero.name + " is selected. Now choose an action to perform";
-      this.print(this.fixMessage);
-    };
-  }.bind(this));
-};
-
-Game.prototype.removeClickListener = function(hero) {
-  var zone = this.board.getZone(hero.x, hero.y);
-  $(zone).children().off('click');
-}
-
-
 
 Game.prototype.checkZonesToMove = function(hero) {
   this.fixMessage = "Select where you want to move " + hero.name;
@@ -182,9 +153,9 @@ Game.prototype.previewMove = function(hero) {
       this.moveHero(hero, x, y)
     }.bind(this));
   });
-  this.toggleClickable(hero);
-  this.toggleSelected(hero);
-  this.removeClickListener(hero);
+  hero.toggleClickable();
+  hero.toggleSelected();
+  hero.removeClickListener();
 }
 
 Game.prototype.clearBoard = function() {
@@ -198,12 +169,12 @@ Game.prototype.clearBoard = function() {
 
 Game.prototype.moveHero = function(hero, x, y) {
   this.activePlayer.actions--;
-  this.deleteHero(hero);
+  hero.delete();
   hero.move(x, y);
-  this.drawHero(hero);
+  hero.draw();
   this.clearBoard();
   this.selectedHero = null;
-  this.toggleClickable(hero);
+  hero.toggleClickable();
   this.setClickListener(hero);
   this.warn(hero.name + " moved!");
   this.checkActionsRemaining();
