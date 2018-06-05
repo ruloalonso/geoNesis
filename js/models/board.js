@@ -42,3 +42,16 @@ Board.prototype.getZone = function(x, y) {
   var col = $(".board").children()[x];
   return zone = $(col).children()[y];   
 }
+
+Board.prototype.checkMeleeAttack = function(hero) {
+  return hero.zone.find('div').not("#" + hero.name);
+}
+
+Board.prototype.clear = function() {
+  var zones = this.getAllZones();
+  zones.forEach(zone => {
+    zone = this.getZone(zone[0], zone[1]);
+    $(zone).removeClass("clickable selectable");
+    $(zone).off('click');
+  });
+}

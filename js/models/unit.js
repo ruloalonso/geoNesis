@@ -32,8 +32,20 @@ Unit.prototype.toggleClickable = function() {
   this.div.toggleClass("clickable");
 }
 
+Unit.prototype.removeClickable = function() {
+  this.div.removeClass("clickable");
+}
+
+Unit.prototype.addClickable = function() {
+  this.div.addClass("clickable");
+}
+
 Unit.prototype.toggleSelected = function() {
   this.div.toggleClass("selected");
+}
+
+Unit.prototype.removeSelected = function() {
+  this.div.removeClass("selected");
 }
 
 Unit.prototype.removeClickListener = function() {
@@ -43,4 +55,8 @@ Unit.prototype.removeClickListener = function() {
 Unit.prototype.updateZoneAndDiv = function() {
   this.zone = $(".board").find("[data-x=" + this.x + "][data-y=" + this.y + "]");
   this.div = this.zone.find('[id="' + this.name + '"]');
+}
+
+Unit.prototype.meleeAttack = function(hero) {
+  hero.health -= this.meleeDamage;
 }
