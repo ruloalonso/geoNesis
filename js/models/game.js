@@ -1,6 +1,5 @@
 function Game () {
-  this.phases = ["army", "battle"];
-  this.activePhase = null;
+  this.activePhase = "army";
   this.players = [new Player("inquisitors"), new Player("revels")];
   this.activePlayer = null;
   this.turnCounter = null;
@@ -13,8 +12,7 @@ function Game () {
 }
 
 Game.prototype.startBattle = function() {
-  this.activePhase = this.phases[0];
-  if (this.turnCounter !== null) {
+  if (this.activePhase === "battle") {
     this.warn("What? The Battle already started...");
     return false;
   }
@@ -23,18 +21,31 @@ Game.prototype.startBattle = function() {
     return false;  
   }
   this.activePlayer = this.players[0];
-  this.activePhase = this.phases[1];
+  this.activePhase = "battle";
   this.turnCounter = 1;
   this.toggleClickable(this.activePlayer.leader);
   this.setClickListener(this.activePlayer.leader);
-  this.fixMessage = "You got " + this.activePlayer.getActions() +" actions remaining";
-  this.warn("Battle started!!! It's Inquisitors turn #1");
+  this.checkActionsRemaining();
+  this.warn("Battle started!!!");
 }
 
 Game.prototype.checkPhase = function() {
   if (this.activePhase === "battle") {
-    this.startBattle();
-  };
+    if (this.turnCounter === null) {
+      this.startBattle();
+    } else {
+      this.checkActionsRemaining();
+    };
+  }    
+}
+
+Game.prototype.checkActionsRemaining = function() {
+  this.fixMessage = "It's " + this.capitalizeFirstLetter(this.activePlayer.faction) + " turn #" + this.turnCounter + ". You got " + this.activePlayer.actions + " actions remaining";
+  // this.print(this.fixMessage);
+  if (this.activePlayer.actions === 0) {
+    this.warn(this.capitalizeFirstLetter(this.activePlayer.faction) + " turn has finished. You've used up all your actions!");
+    this.passTurn();
+  }  
 }
 
 Game.prototype.passTurn = function() {
@@ -42,25 +53,24 @@ Game.prototype.passTurn = function() {
     this.warn("You can't pass turn, The Battle hasn't started yet!");
     return false;
   }
+  if (this.selectedHero) {
+    var zone = this.board.getZone(this.selectedHero.x, this.selectedHero.y);
+    $(zone).removeClass("selectable");
+    this.selectedHero = null;
+  }  
   this.activePlayer.resetActions();
   this.removeClickListener(this.activePlayer.leader);
-  this.selectedHero = null;
-  this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
   this.toggleClickable(this.activePlayer.leader);
   if (this.activePlayer.faction === "inquisitors") {
     this.activePlayer = this.players[1];
-    this.toggleClickable(this.activePlayer.leader);
-    this.setClickListener(this.activePlayer.leader);
-    this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
-    this.warn("Your turn has finished. It's Revels turn #" + this.turnCounter);
   } else {
     this.activePlayer = this.players[0];
-    this.toggleClickable(this.activePlayer.leader);
     this.turnCounter++;
-    this.setClickListener(this.activePlayer.leader);
-    this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
-    this.warn("Your turn has finished. It's Inquisitors turn #" + this.turnCounter);
   }
+  this.toggleClickable(this.activePlayer.leader);
+  this.setClickListener(this.activePlayer.leader);
+  this.checkActionsRemaining();
+  this.warn("Turn passed!");
 }
 
 Game.prototype.print = function(message) {
@@ -92,34 +102,33 @@ Game.prototype.addLeader = function(hero, player) {
 }
 
 Game.prototype.drawHero = function(hero) {
-  var zone = this.getZone(hero.x, hero.y);
+  var zone = this.board.getZone(hero.x, hero.y);
   var src = "img/" + hero.img;
-  $(zone).append('<img id="theImg" src="' + src + '" height="100px"/>');
+  $(zone).append('<div class="hero"><img src="' + src + '"/></div>');
 }
 
 Game.prototype.deleteHero = function(hero) {
-  var zone = this.getZone(hero.x, hero.y);
+  var zone = this.board.getZone(hero.x, hero.y);
   $(zone).children().remove();
 }
 
 Game.prototype.toggleClickable = function(hero) {
-  var zone = this.getZone(hero.x, hero.y);
+  var zone = this.board.getZone(hero.x, hero.y);
   $(zone).children().toggleClass("clickable");
 }
 
 Game.prototype.toggleSelected = function(hero) {
-  var zone = this.getZone(hero.x, hero.y);
+  var zone = this.board.getZone(hero.x, hero.y);
   $(zone).children().toggleClass("selected");
 }
 
 Game.prototype.setClickListener = function(hero) {
-  var zone = this.getZone(hero.x, hero.y);
-  debugger;
+  var zone = this.board.getZone(hero.x, hero.y);
   $(zone).children().click(function() {
     this.toggleSelected(hero);
     if (this.selectedHero) {
       this.selectedHero = null;
-      this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
+      this.checkActionsRemaining();
       this.print(this.fixMessage);
     } else {
       this.selectedHero = hero;
@@ -130,14 +139,11 @@ Game.prototype.setClickListener = function(hero) {
 };
 
 Game.prototype.removeClickListener = function(hero) {
-  var zone = this.getZone(hero.x, hero.y);
+  var zone = this.board.getZone(hero.x, hero.y);
   $(zone).children().off('click');
 }
 
-Game.prototype.getZone = function(x, y) {
-  var col = $(".board").children()[x];
-  return zone = $(col).children()[y];   
-}
+
 
 Game.prototype.checkZonesToMove = function(hero) {
   this.fixMessage = "Select where you want to move " + hero.name;
@@ -147,7 +153,7 @@ Game.prototype.checkZonesToMove = function(hero) {
 
 Game.prototype.setListeners = function() {
   $(document).ready(function() {
-    mockInquisitorHero = new Hero("Perry Williams", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 1, 1);
+    mockInquisitorHero = new Hero("Gryphon", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 1, 1);
     mockRevelHero = new Hero("Harry Jovi", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1);
     $("#startBattle").click(function(){game.startBattle()});
     $("#passTurn").click(function(){game.passTurn()});
@@ -168,22 +174,23 @@ Game.prototype.previewMove = function(hero) {
     return false;
   }
   this.checkZonesToMove(hero).forEach(zone => {
-    zone = this.getZone(zone[0], zone[1]);
+    zone = this.board.getZone(zone[0], zone[1]);
     $(zone).addClass("clickable selectable");
     $(zone).click(function(clicked) {
-      this.moveHero(hero, clicked.target.dataset.x, clicked.target.dataset.y)
+      var x = $(clicked.currentTarget).data("x");
+      var y = $(clicked.currentTarget).data("y");
+      this.moveHero(hero, x, y)
     }.bind(this));
   });
   this.toggleClickable(hero);
   this.toggleSelected(hero);
   this.removeClickListener(hero);
-
 }
 
 Game.prototype.clearBoard = function() {
   var zones = this.board.getAllZones();
   zones.forEach(zone => {
-    zone = this.getZone(zone[0], zone[1]);
+    zone = this.board.getZone(zone[0], zone[1]);
     $(zone).removeClass("clickable selectable");
     $(zone).off('click');
   });
@@ -199,7 +206,7 @@ Game.prototype.moveHero = function(hero, x, y) {
   this.toggleClickable(hero);
   this.setClickListener(hero);
   this.warn(hero.name + " moved!");
-  this.fixMessage = "You got " + this.activePlayer.getActions() + " actions remaining";
+  this.checkActionsRemaining();
 }
 
 Game.prototype.capitalizeFirstLetter = function(string) {

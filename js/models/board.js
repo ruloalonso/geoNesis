@@ -37,3 +37,8 @@ Board.prototype.getAllZones = function() {
   }
   return zones;
 }
+
+Board.prototype.getZone = function(x, y) {
+  var col = $(".board").children()[x];
+  return zone = $(col).children()[y];   
+}

@@ -1,3 +1,13 @@
+// FONT AWESOME
+"https://fontawesome.com/icons/crosshairs?style=solid";
+"https://fontawesome.com/icons/walking?style=solid"
+"https://fontawesome.com/icons/angle-double-right?style=solid"
+"https://fontawesome.com/icons/skull?style=solid"
+
+
+
+
+
 // CARD MODEL
 function Card(name, img, description) {
   this.name = name;
