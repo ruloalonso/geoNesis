@@ -10,6 +10,7 @@ function Unit (name, img, description, meleeDamage, rangeDamage, health, faction
   this.y = y;
   this.zone = $(".board").find("[data-x=" + this.x + "][data-y=" + this.y + "]");
   this.div = this.zone.find('[id="' + this.name + '"]');
+  this.active = false;
 }
 
 Unit.prototype.move = function(x, y) {
