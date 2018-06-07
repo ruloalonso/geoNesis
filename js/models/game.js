@@ -6,11 +6,9 @@ function Game () {
   this.turnCounter = null;
   this.board = new Board(5, 3);
   this.interval = null;
-  this.fixMessage = "Welcome to GEONESYS!!! Choose your leaders";
-  this.tempMessage = '';
   this.leaderCount = 0;
   this.selectedHero = null;
-  this.display = null;
+  this.display = new Display();
 }
 
 // LISTENERS
@@ -19,13 +17,13 @@ Game.prototype.setListeners = function() {
   $(document).ready(function() {
     mockInquisitorHero = new Hero("Superman", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 1, 1);
     mockRevelHero = new Hero("Batman", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1);
+    game.display.getDisplay();
     $("#startBattle").click(function(){game.startBattle()});
     $("#passTurn").click(function(){game.passTurn()});
     $("#addInquisitorLeader").click(function(){game.addLeader(mockInquisitorHero, game.players[0])});
     $("#addRevelLeader").click(function(){game.addLeader(mockRevelHero, game.players[1])});
     $("#move").click(function(){game.previewMove(game.selectedHero)});
     $("#meleeAttack").click(function(){game.previewMeleeAttack(game.selectedHero)});
-    game.display = $(".display p");
   });
 }
 
@@ -35,11 +33,11 @@ Game.prototype.setClickListener = function(hero) {
     if (this.selectedHero) {
       this.selectedHero = null;
       this.checkActionsRemaining(hero);
-      this.print(this.fixMessage);
+      this.display.print(this.display.fixMessage);
     } else {
       this.selectedHero = hero;
-      this.fixMessage = hero.name + " is selected. Now choose an action to perform";
-      this.print(this.fixMessage);
+      this.display.fixMessage = hero.name + " is selected. Now choose an action to perform";
+      this.display.print(this.display.fixMessage);
     };
   }.bind(this));
 };
@@ -49,11 +47,11 @@ Game.prototype.setClickListener = function(hero) {
 
 Game.prototype.startBattle = function() {
   if (this.activePhase === "battle") {
-    this.warn("What? The Battle already started...");
+    this.display.warn("What? The Battle already started...");
     return false;
   }
   if (this.players[0].leader === null || this.players[1].leader === null) {
-    this.warn("There must be a leader in every army to start kicking asses");
+    this.display.warn("There must be a leader in every army to start kicking asses");
     return false;  
   }
   this.activePlayer = this.players[0];
@@ -62,7 +60,7 @@ Game.prototype.startBattle = function() {
   this.turnCounter = 1;
   this.activePlayer.leader.toggleClickable();
   this.checkActionsRemaining(this.activePlayer.leader);
-  this.warn("Battle started!!!");
+  this.display.warn("Battle started!!!");
 }
 
 Game.prototype.checkPhase = function() {
@@ -83,7 +81,7 @@ Game.prototype.checkActionsRemaining = function(hero) {
   } else {
     this.startAction(hero);
   }
-  this.fixMessage = "It's " + this.capitalizeFirstLetter(this.activePlayer.faction) + " turn #" + this.turnCounter + ". You got " + this.activePlayer.actions + " actions remaining";
+  this.display.fixMessage = "It's " + this.capitalizeFirstLetter(this.activePlayer.faction) + " turn #" + this.turnCounter + ". You got " + this.activePlayer.actions + " actions remaining";
 }
 
 Game.prototype.startAction = function(hero) {
@@ -110,7 +108,7 @@ Game.prototype.finishAction = function(hero) {
 
 Game.prototype.passTurn = function() {
   if (this.activePhase !== "battle") {
-    this.warn("You can't pass turn, The Battle hasn't started yet!");
+    this.display.warn("You can't pass turn, The Battle hasn't started yet!");
     return false;
   }
   this.selectedHero = null;  
@@ -129,43 +127,24 @@ Game.prototype.passTurn = function() {
   }
   this.activePlayer.leader.toggleClickable();
   this.checkActionsRemaining(this.activePlayer.leader);
-  this.warn("Turn passed!");
-}
-
-
-// DISPLAY
-
-Game.prototype.print = function(message) {
-  clearInterval(this.interval);
-  this.display.text(message);
-}
-
-Game.prototype.warn = function(message) {
-  if (this.interval) clearInterval(this.interval);
-  this.tempMessage = message; 
-  this.print(this.tempMessage);
-  this.interval = setTimeout(function(){
-    this.print(this.fixMessage);
-    this.tempMessage = '';
-  }.bind(this), 3000);
 }
 
 
 // MOVE
 
 Game.prototype.checkZonesToMove = function(hero) {
-  this.fixMessage = "Select where you want to move " + hero.name;
-  this.print(this.fixMessage);
+  this.display.fixMessage = "Select where you want to move " + hero.name;
+  this.display.print(this.display.fixMessage);
   return this.board.checkMovility(hero);
 }
 
 Game.prototype.previewMove = function(hero) {
   if (this.activePhase !== "battle") {
-    this.warn("You can't move any hero, The Battle hasn't started yet!");
+    this.display.warn("You can't move any hero, The Battle hasn't started yet!");
     return false;
   }
   if (this.selectedHero === null) {
-    this.warn("You must select a Hero before moving it!");
+    this.display.warn("You must select a Hero before moving it!");
     return false;
   }
   this.checkZonesToMove(hero).forEach(zone => {
@@ -186,8 +165,8 @@ Game.prototype.moveHero = function(hero, x, y) {
   hero.delete();
   hero.move(x, y);
   hero.draw();
+  this.display.warn(hero.name + " moved!");
   this.finishAction(hero);
-  this.warn(hero.name + " moved!");
 }
 
 
@@ -195,20 +174,20 @@ Game.prototype.moveHero = function(hero, x, y) {
 
 Game.prototype.previewMeleeAttack = function(hero) {
   if (this.activePhase !== "battle") {
-    this.warn("You can't attack, The Battle hasn't started yet!");
+    this.display.warn("You can't attack, The Battle hasn't started yet!");
     return false;
   }
   if (this.selectedHero === null) {
-    this.warn("You must select a Hero before attacking!");
+    this.display.warn("You must select a Hero before attacking!");
     return false;
   }
   var heroes = this.board.checkMeleeAttack(hero);
   if (heroes.length > 0) {
     hero.meleeAttack(this.inactivePlayer.leader);
+    this.display.warn(hero.name + " inflicted " + hero.meleeDamage + " points of damage to " + this.inactivePlayer.leader.name);
     this.finishAction(hero);
-    this.warn(hero.name + " inflicted " + hero.meleeDamage + " points of damage to " + this.inactivePlayer.leader.name);
   } else {
-    this.warn("Oops! You don't reach any enemy heroes...");
+    this.display.warn("Oops! You don't reach any enemy heroes...");
   }
 }
 
@@ -227,12 +206,12 @@ Game.prototype.addLeader = function(hero, player) {
     player.addLeader(hero);
     this.leaderCount++;
     this.board.zones[hero.x][hero.y].heroes.push(hero);
-    this.warn(hero.name + " added to " + faction + " army");
-    if (this.leaderCount == 1) this.fixMessage = "Choose the other's army leader";
-    if (this.leaderCount == 2) this.fixMessage = "All armys are setted up! Now you can start The Battle when you are ready";
+    this.display.warn(hero.name + " added to " + faction + " army");
+    if (this.leaderCount == 1) this.display.fixMessage = "Choose the other's army leader";
+    if (this.leaderCount == 2) this.display.fixMessage = "All armys are setted up! Now you can start The Battle when you are ready";
     hero.draw();
   } else {
-    this.warn(faction + " army already has a Leader");
+    this.display.warn(faction + " army already has a Leader");
   } 
 }
 
@@ -240,7 +219,7 @@ Game.prototype.addLeader = function(hero, player) {
 //   this.board.getAllZones().forEach(function(zone) {
 //     $(this.getZone(zone[0], zone[1])).removeClass("clickable selectable");
 //   }.bind(this));
-//   this.warn("Action cancelled!");
+//   this.display.warn("Action cancelled!");
 //   this.setClickListener(this.activePlayer.leader);
 // }
 
