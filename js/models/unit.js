@@ -61,3 +61,7 @@ Unit.prototype.updateZoneAndDiv = function() {
 Unit.prototype.meleeAttack = function(hero) {
   hero.health -= this.meleeDamage;
 }
+
+Unit.prototype.rangeAttack = function(hero) {
+  hero.health -= this.rangeAttack;
+}

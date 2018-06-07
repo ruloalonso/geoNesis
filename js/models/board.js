@@ -13,11 +13,12 @@ Board.prototype.build = function() {
   }
 }
 
-Board.prototype.checkMovility = function(hero) {
+Board.prototype.checkSurroundings = function(hero, distance) {
   var zones = [];
   for (var x = 0; x < this.width; x++) {
     for (var y = 0; y < this.height; y++) {
-      if ((hero.x - x >= -1 && hero.x - x <=1) && (hero.y - y >= -1 && hero.y - y <=1)) {
+      if ((hero.x - x >= -distance && hero.x - x <= distance) &&
+       (hero.y - y >= -distance && hero.y - y <= distance)) {
         // debugger;
         if(!(hero.x === x && hero.y === y)){
           zones.push([x,y]); 
@@ -26,6 +27,14 @@ Board.prototype.checkMovility = function(hero) {
     }
   }
   return zones;
+}
+
+Board.prototype.checkMovility = function(hero) {
+  return this.checkSurroundings(hero, 1);
+}
+
+Board.prototype.checkRangeAttack = function(hero) {
+  return this.checkSurroundings(hero, hero.range);
 }
 
 Board.prototype.getAllZones = function() {

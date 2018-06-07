@@ -24,6 +24,7 @@ Game.prototype.setListeners = function() {
     $("#addRevelLeader").click(function(){game.addLeader(mockRevelHero, game.players[1])});
     $("#move").click(function(){game.previewMove(game.selectedHero)});
     $("#meleeAttack").click(function(){game.previewMeleeAttack(game.selectedHero)});
+    $("#rangeAttack").click(function(){game.previewRangeAttack(game.selectedHero)});
   });
 }
 
@@ -97,10 +98,10 @@ Game.prototype.finishAction = function(hero) {
   this.board.clear();
   this.selectedHero = null;
   hero.active = false;
-  hero.addClickable();
   hero.removeClickListener();
   hero.removeSelected();
   this.checkActionsRemaining(hero);
+  // hero.addClickable();
 }
 
 
@@ -147,17 +148,18 @@ Game.prototype.previewMove = function(hero) {
     this.display.warn("You must select a Hero before moving it!");
     return false;
   }
+  this.board.clear();
   this.checkZonesToMove(hero).forEach(zone => {
     zone = this.board.getZone(zone[0], zone[1]);
     $(zone).addClass("clickable selectable");
     $(zone).click(function(clicked) {
       var x = $(clicked.currentTarget).data("x");
       var y = $(clicked.currentTarget).data("y");
-      this.moveHero(hero, x, y)
+      this.moveHero(hero, x, y);
     }.bind(this));
   });
-  hero.toggleClickable();
-  hero.toggleSelected();
+  hero.removeClickable();
+  hero.removeSelected();
   hero.removeClickListener();
 }
 
@@ -172,7 +174,7 @@ Game.prototype.moveHero = function(hero, x, y) {
 
 // ATTACK
 
-Game.prototype.previewMeleeAttack = function(hero) {
+Game.prototype.checkAttack = function() {
   if (this.activePhase !== "battle") {
     this.display.warn("You can't attack, The Battle hasn't started yet!");
     return false;
@@ -181,6 +183,11 @@ Game.prototype.previewMeleeAttack = function(hero) {
     this.display.warn("You must select a Hero before attacking!");
     return false;
   }
+  return true;
+}
+
+Game.prototype.previewMeleeAttack = function(hero) {
+  if (!this.checkAttack()) return false;
   var heroes = this.board.checkMeleeAttack(hero);
   if (heroes.length > 0) {
     hero.meleeAttack(this.inactivePlayer.leader);
@@ -189,6 +196,30 @@ Game.prototype.previewMeleeAttack = function(hero) {
   } else {
     this.display.warn("Oops! You don't reach any enemy heroes...");
   }
+}
+
+Game.prototype.previewRangeAttack = function(hero) {
+  if (!this.checkAttack()) return false;
+  this.checkZonesToRangeAttack(hero).forEach(zone => {
+    zone = this.board.getZone(zone[0], zone[1]);
+    $(zone).addClass("selectable");
+    $(zone).find('div').not("#" + hero.name).addClass("clickable");
+    $(zone).find('div').not("#" + hero.name).click(function(clicked) {
+      console.log($(clicked.currentTarget).attr('id'));
+      hero.rangeAttack(this.inactivePlayer.leader);
+      this.display.warn(hero.name + " inflicted " + hero.rangeDamage + " points of damage to " + this.inactivePlayer.leader.name);
+      this.finishAction(hero);
+    }.bind(this));
+  })
+  hero.removeClickable();
+  hero.removeSelected();
+  hero.removeClickListener();
+}
+
+Game.prototype.checkZonesToRangeAttack = function(hero) {
+  this.display.fixMessage = "Select which hero you want to attack";
+  this.display.print(this.display.fixMessage);
+  return this.board.checkRangeAttack(hero);
 }
 
 

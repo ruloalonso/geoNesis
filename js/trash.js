@@ -5,6 +5,19 @@
 "https://fontawesome.com/icons/skull?style=solid"
 
 
+// SKILLS EASY TO IMPLEMENT
+teleport
+sniper
+
+// TODO
+comentar codigo:
+  lo que mas funciona
+  lo que menos funciona
+
+capacidad de mejora del juego
+  qué habrías hecho si tuvieras más tiempo
+
+
 
 
 
