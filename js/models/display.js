@@ -39,11 +39,11 @@ Display.prototype.checkDeployStatus = function(players) {
   var revHeroes = '';
   var inqLeader = "";
   var revLeader = "";
-  inqHeroes = (remInqHeroes > 0 ||  players[0].leader) ? "Inquisitors must deploy " + remInqHeroes + " more heroes. " : '';
-  revHeroes = (remRevHeroes > 0 ||  players[1].leader) ? "Revels must deploy " + remRevHeroes + " more heroes. " : '';
-  inqLeader = (remInqHeroes === 0 && !players[0].leader) ? "Inquisitors must choose their Leader. " : "";
-  revLeader = (remRevHeroes === 0 && !players[1].leader) ? "Revels must choose their Leader. " : "";
-
+  console.log(remInqHeroes);
+  inqHeroes = (remInqHeroes > 0 && !players[0].leader) ? "Inquisitors must deploy " + remInqHeroes + " more heroes. " : '';
+  revHeroes = (remRevHeroes > 0 && !players[1].leader) ? "Revels must deploy " + remRevHeroes + " more heroes. " : '';
+  inqLeader = (inqHeroes === '') ? "Inquisitors must choose their Leader. " : "";
+  revLeader = (revHeroes === '') ? "Revels must choose their Leader. " : "";
   this.fixMessage = inqHeroes + revHeroes + inqLeader + revLeader;
   if (remInqHeroes === 0 && remRevHeroes === 0 && players[0].leader && players[1].leader) {
     this.fixMessage = "All armys are setted up! Now you can start The Battle when you are ready";

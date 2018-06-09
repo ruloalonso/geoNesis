@@ -269,10 +269,15 @@ Game.prototype.setLeader = function(player) {
       player.heroes.forEach(hero => {
         if (hero.name === clicked.currentTarget.id) {
           player.leader = hero;
-          // player.heroes.splice(player.heroes.indexOf(hero), 1);
+          player.heroes.splice(player.heroes.indexOf(hero), 1);
+          player.leader.removeClickable();
+          player.leader.removeClickListener();
+          player.heroes.forEach(hero => {
+            hero.removeClickable();
+            hero.removeClickListener();
+          })
           this.display.warn("Leader asigned to " +this.display.capitalizeFirstLetter(player.faction));
-          $(zone).find("."+player.faction).off();
-          $(zone).find("."+player.faction).removeClass("clickable")
+          this.display.checkDeployStatus(this.players);
         }
       })
       // console.log($(clicked.currentTarget).find("."+player.faction).attr("id"));
