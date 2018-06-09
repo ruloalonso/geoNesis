@@ -33,8 +33,7 @@ Game.prototype.setClickListener = function(hero) {
     hero.toggleSelected();
     if (this.selectedHero) {
       this.selectedHero = null;
-      this.checkActionsRemaining(hero);
-      this.display.print(this.display.fixMessage);
+      this.display.printTurn(this.activePlayer, this.turnCounter);
     } else {
       this.selectedHero = hero;
       this.display.fixMessage = hero.name + " is selected. Now choose an action to perform";
@@ -59,7 +58,7 @@ Game.prototype.startBattle = function() {
   this.inactivePlayer = this.players[1];
   this.activePhase = "battle";
   this.turnCounter = 1;
-  this.activePlayer.leader.toggleClickable();
+  this.startAction(this.activePlayer.leader);
   this.checkActionsRemaining(this.activePlayer.leader);
   this.display.warn("Battle started!!!");
 }
@@ -77,12 +76,12 @@ Game.prototype.checkPhase = function() {
 // ACTIONS
 
 Game.prototype.checkActionsRemaining = function(hero) {
+  console.log(hero.name + " has " + this.activePlayer.actions + " actions remaining");
   if (this.activePlayer.actions === 0) {
     this.passTurn();
   } else {
     this.startAction(hero);
   }
-  this.display.fixMessage = "It's " + this.capitalizeFirstLetter(this.activePlayer.faction) + " turn #" + this.turnCounter + ". You got " + this.activePlayer.actions + " actions remaining";
 }
 
 Game.prototype.startAction = function(hero) {
@@ -91,9 +90,11 @@ Game.prototype.startAction = function(hero) {
     hero.active = true;
   }  
   hero.addClickable();
+  this.display.printTurn(this.activePlayer, this.turnCounter);
 }
 
 Game.prototype.finishAction = function(hero) {
+  console.log(hero.name + " finishing action!!!");
   this.activePlayer.actions--;
   this.board.clear();
   this.selectedHero = null;
@@ -101,7 +102,6 @@ Game.prototype.finishAction = function(hero) {
   hero.removeClickListener();
   hero.removeSelected();
   this.checkActionsRemaining(hero);
-  // hero.addClickable();
 }
 
 
@@ -205,9 +205,10 @@ Game.prototype.previewRangeAttack = function(hero) {
     $(zone).addClass("selectable");
     $(zone).find('div').not("#" + hero.name).addClass("clickable");
     $(zone).find('div').not("#" + hero.name).click(function(clicked) {
-      console.log($(clicked.currentTarget).attr('id'));
       hero.rangeAttack(this.inactivePlayer.leader);
       this.display.warn(hero.name + " inflicted " + hero.rangeDamage + " points of damage to " + this.inactivePlayer.leader.name);
+      this.inactivePlayer.leader.removeClickListener();
+      this.inactivePlayer.leader.removeClickable();
       this.finishAction(hero);
     }.bind(this));
   })

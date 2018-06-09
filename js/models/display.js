@@ -22,3 +22,12 @@ Display.prototype.warn = function(message) {
 Display.prototype.getDisplay = function() {
   this.display = $(".display p");
 }
+
+Display.prototype.printTurn = function(player, turnCounter) {
+  this.fixMessage = "It's " + this.capitalizeFirstLetter(player.faction) + " turn #" + turnCounter + ". You got " + player.actions + " actions remaining";
+  this.print(this.fixMessage);
+}
+
+Display.prototype.capitalizeFirstLetter = function(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
