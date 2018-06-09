@@ -29,6 +29,18 @@ Board.prototype.checkSurroundings = function(hero, distance) {
   return zones;
 }
 
+Board.prototype.getSquare = function(horiz, vert, size) {
+  var zones = [];
+  for (var x = 0; x < this.width; x++) {
+    for (var y = 0; y < this.height; y++) {
+      if ((horiz - x >= -size && horiz - x <= size) && (vert - y >= -size && vert - y <= size)) {
+          zones.push(this.getZone(x,y));         
+      }
+    }
+  }
+  return zones;
+}
+
 Board.prototype.checkMovility = function(hero) {
   return this.checkSurroundings(hero, 1);
 }

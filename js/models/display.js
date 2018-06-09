@@ -1,5 +1,5 @@
 function Display () {
-  this.fixMessage = "Welcome to GEONESYS!!! Choose your leaders";
+  this.fixMessage = "";
   this.tempMessage = '';
   this.display = null;
 }
@@ -30,4 +30,23 @@ Display.prototype.printTurn = function(player, turnCounter) {
 
 Display.prototype.capitalizeFirstLetter = function(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+Display.prototype.checkDeployStatus = function(players) {
+  var remInqHeroes = 3 - players[0].heroes.length;
+  var remRevHeroes = 3 - players[1].heroes.length;
+  var inqHeroes = '';
+  var revHeroes = '';
+  var inqLeader = "";
+  var revLeader = "";
+  inqHeroes = (remInqHeroes > 0 ||  players[0].leader) ? "Inquisitors must deploy " + remInqHeroes + " more heroes. " : '';
+  revHeroes = (remRevHeroes > 0 ||  players[1].leader) ? "Revels must deploy " + remRevHeroes + " more heroes. " : '';
+  inqLeader = (remInqHeroes === 0 && !players[0].leader) ? "Inquisitors must choose their Leader. " : "";
+  revLeader = (remRevHeroes === 0 && !players[1].leader) ? "Revels must choose their Leader. " : "";
+
+  this.fixMessage = inqHeroes + revHeroes + inqLeader + revLeader;
+  if (remInqHeroes === 0 && remRevHeroes === 0 && players[0].leader && players[1].leader) {
+    this.fixMessage = "All armys are setted up! Now you can start The Battle when you are ready";
+  }
+  this.print(this.fixMessage);
 }

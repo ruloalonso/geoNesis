@@ -20,7 +20,7 @@ Unit.prototype.move = function(x, y) {
 }
 
 Unit.prototype.draw = function() {
-  this.zone.append('<div class="hero" id="' + this.name + '"><img src="img/' + this.img + '"/></div>');
+  this.zone.append('<div class="hero '+ this.faction +'" id="' + this.name + '"><img src="img/' + this.img + '"/></div>');
   this.updateZoneAndDiv();
 }
 

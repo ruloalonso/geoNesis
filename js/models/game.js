@@ -1,46 +1,14 @@
 function Game () {
-  this.activePhase = "army";
+  this.activePhase = "deploy";
   this.players = [new Player("inquisitors"), new Player("revels")];
   this.activePlayer = null;
   this.inactivePlayer = null;
   this.turnCounter = null;
   this.board = new Board(5, 3);
   this.interval = null;
-  this.leaderCount = 0;
   this.selectedHero = null;
   this.display = new Display();
 }
-
-// LISTENERS
-
-Game.prototype.setListeners = function() {
-  $(document).ready(function() {
-    mockInquisitorHero = new Hero("Superman", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 1, 1);
-    mockRevelHero = new Hero("Batman", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1);
-    game.display.getDisplay();
-    $("#startBattle").click(function(){game.startBattle()});
-    $("#passTurn").click(function(){game.passTurn()});
-    $("#addInquisitorLeader").click(function(){game.addLeader(mockInquisitorHero, game.players[0])});
-    $("#addRevelLeader").click(function(){game.addLeader(mockRevelHero, game.players[1])});
-    $("#move").click(function(){game.previewMove(game.selectedHero)});
-    $("#meleeAttack").click(function(){game.previewMeleeAttack(game.selectedHero)});
-    $("#rangeAttack").click(function(){game.previewRangeAttack(game.selectedHero)});
-  });
-}
-
-Game.prototype.setClickListener = function(hero) {
-  hero.div.click(function() {
-    hero.toggleSelected();
-    if (this.selectedHero) {
-      this.selectedHero = null;
-      this.display.printTurn(this.activePlayer, this.turnCounter);
-    } else {
-      this.selectedHero = hero;
-      this.display.fixMessage = hero.name + " is selected. Now choose an action to perform";
-      this.display.print(this.display.fixMessage);
-    };
-  }.bind(this));
-};
 
 
 // PHASES 
@@ -76,7 +44,6 @@ Game.prototype.checkPhase = function() {
 // ACTIONS
 
 Game.prototype.checkActionsRemaining = function(hero) {
-  console.log(hero.name + " has " + this.activePlayer.actions + " actions remaining");
   if (this.activePlayer.actions === 0) {
     this.passTurn();
   } else {
@@ -224,6 +191,40 @@ Game.prototype.checkZonesToRangeAttack = function(hero) {
 }
 
 
+// LISTENERS
+
+Game.prototype.setListeners = function() {
+  $(document).ready(function() {
+    mockInquisitorHero = new Hero("Superman", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 1, 1);
+    mockRevelHero = new Hero("Batman", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1);
+    game.display.getDisplay();
+    $("#startBattle").click(function(){game.startBattle()});
+    $("#passTurn").click(function(){game.passTurn()});
+    $("#addInquisitorHero").click(function(){game.addHero(inquisitorHeroes[game.players[0].heroes.length], game.players[0])});
+    $("#addRevelHero").click(function(){game.addHero(revelHeroes[game.players[1].heroes.length], game.players[1])});
+    $("#setInquisitorLeader").click(function(){game.setLeader(game.players[0])});
+    $("#setRevelLeader").click(function(){game.setLeader(game.players[1])});
+    $("#move").click(function(){game.previewMove(game.selectedHero)});
+    $("#meleeAttack").click(function(){game.previewMeleeAttack(game.selectedHero)});
+    $("#rangeAttack").click(function(){game.previewRangeAttack(game.selectedHero)});
+  });
+}
+
+Game.prototype.setClickListener = function(hero) {
+  hero.div.click(function() {
+    hero.toggleSelected();
+    if (this.selectedHero) {
+      this.selectedHero = null;
+      this.display.printTurn(this.activePlayer, this.turnCounter);
+    } else {
+      this.selectedHero = hero;
+      this.display.fixMessage = hero.name + " is selected. Now choose an action to perform";
+      this.display.print(this.display.fixMessage);
+    };
+  }.bind(this));
+};
+
+
 // EXTRA
 
 Game.prototype.capitalizeFirstLetter = function(string) {
@@ -232,32 +233,58 @@ Game.prototype.capitalizeFirstLetter = function(string) {
 
 // TODO: MOVE TO PLAYER
 
-Game.prototype.addLeader = function(hero, player) {
+Game.prototype.addHero = function(hero, player) {
+  if (player.heroes.length > 2) return false;
+  var x = player.faction === "inquisitors" ? 1 : 3;
+  this.display.print("Choose where you want to place " + hero.name);
+  var zones = this.board.getSquare(x, 1, 1);
+  zones.forEach(zone => {
+    $(zone).addClass("clickable selectable");
+    $(zone).click(function(clicked) {
+      var x = $(clicked.currentTarget).data("x");
+      var y = $(clicked.currentTarget).data("y");
+      hero.move(x, y);
+      hero.draw();
+      this.board.clear();
+      player.addHero(hero);
+      this.display.checkDeployStatus(this.players);
+    }.bind(this));
+  });
   var faction = this.capitalizeFirstLetter(player.faction);
-  if (player.leader === null) {
-    player.addLeader(hero);
-    this.leaderCount++;
-    this.board.zones[hero.x][hero.y].heroes.push(hero);
-    this.display.warn(hero.name + " added to " + faction + " army");
-    if (this.leaderCount == 1) this.display.fixMessage = "Choose the other's army leader";
-    if (this.leaderCount == 2) this.display.fixMessage = "All armys are setted up! Now you can start The Battle when you are ready";
-    hero.draw();
-  } else {
-    this.display.warn(faction + " army already has a Leader");
-  } 
 }
 
-// Game.prototype.cancelAction = function() {
-//   this.board.getAllZones().forEach(function(zone) {
-//     $(this.getZone(zone[0], zone[1])).removeClass("clickable selectable");
-//   }.bind(this));
-//   this.display.warn("Action cancelled!");
-//   this.setClickListener(this.activePlayer.leader);
-// }
-
-// $(this.getZone(hero.x, hero.y)).children().click(function() {
-//   this.cancelAction();
-// }.bind(this));     
-
+Game.prototype.setLeader = function(player) {
+  if (player.heroes.length < 3) {
+    this.display.warn("You must have 3 heroes before setting your Leader");
+    return false;
+  }
+  var x = player.faction === "inquisitors" ? 1 : 3;
+  this.display.print("Click on the hero you want to name Leader");
+  var zones = this.board.getSquare(x, 1, 1);
+  zones.forEach(zone => {
+    var heroes = $(zone).find("."+player.faction);
+    $(zone).find("."+player.faction).addClass("clickable");
+    $(zone).find("."+player.faction).click(function(clicked) {
+      console.log(clicked.currentTarget.id);
+      player.heroes.forEach(hero => {
+        if (hero.name === clicked.currentTarget.id) {
+          player.leader = hero;
+          // player.heroes.splice(player.heroes.indexOf(hero), 1);
+          this.display.warn("Leader asigned to " +this.display.capitalizeFirstLetter(player.faction));
+          $(zone).find("."+player.faction).off();
+          $(zone).find("."+player.faction).removeClass("clickable")
+        }
+      })
+      // console.log($(clicked.currentTarget).find("."+player.faction).attr("id"));
+      // var x = $(clicked.currentTarget).data("x");
+      // var y = $(clicked.currentTarget).data("y");
+      // hero.move(x, y);
+      // hero.draw();
+      // this.board.clear();
+      // player.addHero(hero);
+      // this.display.checkDeployStatus(this.players);
+    }.bind(this));
+  });
+}
 
 
