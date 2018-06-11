@@ -3,6 +3,7 @@ var game = new Game();
 game.board.build(5, 3);
 
 $(document).ready(function() {
+  $("#start").click(function(){game.startGame()});
   $("#startBattle").click(function(){game.startBattle()});
   $("#passTurn").click(function(){game.passTurn()});
   $("#addInquisitorHero").click(function(){game.addHero(inquisitorHeroes[game.players[0].heroes.length], game.players[0])});
@@ -10,7 +11,7 @@ $(document).ready(function() {
   $("#setInquisitorLeader").click(function(){game.setLeader(game.players[0])});
   $("#setRevelLeader").click(function(){game.setLeader(game.players[1])});
   $("#move").click(function(){game.previewMove()});
-  $("#meleeAttack").click(function(){game.previewMeleeAttack(game.selectedHero)});
+  $("#meleeAttack").click(function(){game.previewMeleeAttack()});
   $("#rangeAttack").click(function(){game.previewRangeAttack(game.selectedHero)});
   game.display.getDisplay();
 });

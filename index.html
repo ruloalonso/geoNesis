@@ -19,7 +19,7 @@
   </head>
   <body>
     <h1>ge-O-Nesys v.0.1</h1>
-    <div class="board">
+    <div class="board hidden">
       <div class="range">
         <div data-x="0" data-y="0" class="zone"></div>
         <div data-x="0" data-y="1" class="zone"></div>
@@ -47,22 +47,29 @@
       </div>
     </div>
     <div class="display">
-      <p>Welcome to GEONESYS!!! Each army must have 3 heroes and a named Leader</p>
+      <p>Welcome to GEONESYS!!! <br>
+        This is a 2 player game. Inquisitors versus Revels. Choose your side!!! <br>
+        Inquisitors play at the left side of the screen. Revels to the right. Sit down properly. <br>
+        Each player controls an army formed by 3 heroes, one of them is the Leader. <br>
+        Try to kill the enemy Leader before yours gets killed!!!<br>
+      </p>
     </div>
-    <div class="buttons">
-      <button id="addInquisitorHero">Add Inquisitor Hero</button>
+    <div class="buttons welcome">
+      <button id="start">Start game</button>
+    </div>
+    <div class="buttons deploy revel-buttons hidden">
       <button id="addRevelHero">Add Revel Hero</button>
-    </div>
-    <div class="buttons">
-      <button id="setInquisitorLeader">Set Inquisitor Leader</button>
       <button id="setRevelLeader">Set Revel Leader</button>
     </div>
-    <div class="buttons">
+    <div class="buttons deploy inquisitor-buttons hidden">
+      <button id="addInquisitorHero">Add Inquisitor Hero</button>
+      <button id="setInquisitorLeader">Set Inquisitor Leader</button>
+      </div>  
+    <div class="buttons battle hidden">
       <button id="move">Move</button>
       <button id="meleeAttack">Melee Attack</button>
       <button id="rangeAttack">Range Attack</button>
       <button id="passTurn">Pass turn</button>
-      <button id="startBattle">Start battle</button>
     </div>
   </body>
 </html>

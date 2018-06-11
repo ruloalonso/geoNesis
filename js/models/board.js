@@ -65,7 +65,7 @@ Board.prototype.getZone = function(x, y) {
 }
 
 Board.prototype.checkMeleeAttack = function(hero) {
-  return hero.zone.find('div').not("#" + hero.name);
+  return hero.zone.find('div').not("#" + hero.name).not("." + hero.faction);
 }
 
 Board.prototype.clear = function() {

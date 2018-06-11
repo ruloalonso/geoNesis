@@ -27,7 +27,6 @@ Unit.prototype.finishAction = function(player, display) {
   this.active = false;
   this.removeSelected();
   player.heroes.forEach(hero => {
-    console.log(hero);
     if (hero.actions > 0) {
       hero.setClickListener(display);
       hero.addClickable();

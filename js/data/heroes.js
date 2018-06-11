@@ -1,5 +1,5 @@
 inquisitorHeroes = [
-  new Hero("Superman", "superman.jpg", "test", 200, 30, 500, "inquisitors", 2, 1, 1),
+  new Hero("Superman", "superman.gif", "test", 200, 30, 500, "inquisitors", 2, 1, 1),
   new Hero("Superdog", "superdog.png", "test", 200, 30, 500, "inquisitors", 2, 1, 1),
   new Hero("Supercat", "supercat.png", "test", 200, 30, 500, "inquisitors", 2, 1, 1)
 ]

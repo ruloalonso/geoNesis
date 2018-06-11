@@ -10,17 +10,24 @@ function Game () {
 
 // PHASES 
 
+Game.prototype.startGame = function() {
+  $(".board").removeClass("hidden");
+  $(".revel-buttons").removeClass("hidden");
+  $(".welcome").addClass("hidden");
+  this.activePlayer = this.players[1];
+  this.display.print("It's Revels turn. Deploy 3 heroes and name your Leader");
+}
+
 Game.prototype.startBattle = function() {
+  $(".deploy").addClass("hidden");
+  $(".battle").removeClass("hidden");
   if (this.activePhase === "battle") {
     this.display.warn("What? The Battle already started...");
     return false;
   }
-  if (!this.players[0].hasLeader() || !this.players[1].hasLeader()) {
-    this.display.warn("There must be a leader in every army to start kicking asses");
-    return false;  
-  }
   this.activePhase = "battle";
-  this.display.warn("Battle started!!!");
+  this.players[0].turn = 0;
+  this.players[1].turn = 0;
   this.activePlayer = this.players[0];
   this.activePlayer.startTurn(this.display);
 }
@@ -29,10 +36,6 @@ Game.prototype.startBattle = function() {
 // TURNS
 
 Game.prototype.passTurn = function() {
-  if (this.activePhase !== "battle") {
-    this.display.warn("You can't pass turn, The Battle hasn't started yet!");
-    return false;
-  }
   this.board.clear();
   this.activePlayer.passTurn(this.display);
   if (this.activePlayer.faction === "inquisitors" || null) {
@@ -42,7 +45,12 @@ Game.prototype.passTurn = function() {
     this.activePlayer = this.players[0];
     this.inactivePlayer = this.players[1];
   }
-  this.activePlayer.startTurn(this.display);
+  if (this.activePhase === "deploy") {
+    $(".revel-buttons").addClass("hidden");
+    $(".inquisitor-buttons").removeClass("hidden");
+    if (this.activePlayer.faction === "revels") this.startBattle();
+  }
+  if (this.activePhase !== "battle") this.activePlayer.startTurn(this.display);
 }
 
 
@@ -66,6 +74,11 @@ Game.prototype.previewMove = function() {
     $(zone).click(function(clicked) {
       var x = $(clicked.currentTarget).data("x");
       var y = $(clicked.currentTarget).data("y");
+      console.log(this.board.zones[x][y].heroes);
+      if (this.board.zones[x][y].heroes.length > 1) {
+        this.display.warn("There can only be 2 heroes per zone!!");
+        return false;
+      }
       this.moveHero(hero, x, y);
     }.bind(this));
   });
@@ -92,24 +105,20 @@ Game.prototype.checkZonesToMove = function(hero) {
 
 // ATTACK
 
-Game.prototype.checkAttack = function() {
+Game.prototype.previewMeleeAttack = function() {
   if (this.activePhase !== "battle") {
     this.display.warn("You can't attack, The Battle hasn't started yet!");
     return false;
   }
-  if (this.selectedHero === null) {
-    this.display.warn("You must select a Hero before attacking!");
+  var hero = this.getActiveHero();
+  if (hero === null) {
+    this.display.warn("You must select a Hero before moving it!");
     return false;
   }
-  return true;
-}
-
-Game.prototype.previewMeleeAttack = function(hero) {
-  if (!this.checkAttack()) return false;
   var heroes = this.board.checkMeleeAttack(hero);
   if (heroes.length > 0) {
-    hero.meleeAttack(this.inactivePlayer.leader);
-    this.display.warn(hero.name + " inflicted " + hero.meleeDamage + " points of damage to " + this.inactivePlayer.leader.name);
+    hero.meleeAttack(heroes[0]);
+    this.display.warn(hero.name + " inflicted " + hero.meleeDamage + " points of damage to " + heroes[0].name);
     hero.finishAction(this.display);
   } else {
     this.display.warn("Oops! You don't reach any enemy heroes...");
@@ -167,11 +176,16 @@ Game.prototype.addHero = function(hero, player) {
     $(zone).click(function(clicked) {
       var x = $(clicked.currentTarget).data("x");
       var y = $(clicked.currentTarget).data("y");
+      console.log(this.board.zones[x][y]);
+      if (this.board.zones[x][y].heroes.length > 1) {
+        this.display.warn("There can only be 2 heroes per zone!!");
+        return false;
+      }
       hero.move(x, y);
       hero.draw();
       this.board.clear();
-      player.addHero(hero);
-      this.display.checkDeployStatus(this.players);
+      player.addHero(hero, this.board);
+      this.display.checkDeployStatus(this.activePlayer);
     }.bind(this));
   });
   var faction = this.capitalizeFirstLetter(player.faction);
@@ -192,12 +206,13 @@ Game.prototype.setLeader = function(player) {
       player.heroes.forEach(hero => {
         if (hero.name === clicked.currentTarget.id) {
           player.setLeader(hero);
-          player.heroes.forEach(hero => {
-            hero.removeClickable();
-            hero.removeClickListener();
-          })
+          this.passTurn();
+          // player.heroes.forEach(hero => {
+          //   hero.removeClickable();
+          //   hero.removeClickListener();
+          // })
+          if (this.activePhase === "deploy") this.display.checkDeployStatus(this.activePlayer);
           this.display.warn("Leader asigned to " +this.display.capitalizeFirstLetter(player.faction));
-          this.display.checkDeployStatus(this.players);
         }
       })
     }.bind(this));
