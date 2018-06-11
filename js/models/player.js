@@ -5,7 +5,6 @@ function Player (faction) {
 }
 
 Player.prototype.startTurn = function(display) {
-  debugger;
   this.turn++;
   this.heroes.forEach(hero => {
     hero.actions = 2;
@@ -24,12 +23,8 @@ Player.prototype.passTurn = function(display) {
   display.warn("Turn passed!!!");
 }
 
-Player.prototype.addHero = function(hero, board) {
-  console.log("add hero");
-  console.log(hero.x, hero.y);
-  console.log(board.zones);
+Player.prototype.addHero = function(hero) {
   this.heroes.push(hero);
-  board.zones[hero.x][hero.y].heroes.push(hero);
 }
 
 Player.prototype.setLeader = function(hero) {

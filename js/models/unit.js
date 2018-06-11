@@ -26,7 +26,6 @@ Unit.prototype.finishAction = function(player, display) {
   this.actions--;
   this.active = false;
   this.removeSelected();
-  debugger;
   player.heroes.forEach(hero => {
     if (hero.actions > 0) {
       hero.setClickListener(display);
@@ -79,9 +78,12 @@ Unit.prototype.removeSelected = function() {
 
 // ACTIONS
 
-Unit.prototype.move = function(x, y) {
+Unit.prototype.move = function(x, y, board) {
+  debugger;
+  board.zones[this.x][this.y].heroes.splice(board.zones[this.x][this.y].heroes.indexOf(this), 1);  
   this.x = x;
   this.y = y;
+  board.zones[x][y].heroes.push(this); 
   this.updateZoneAndDiv();
 }
 

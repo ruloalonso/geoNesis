@@ -6,6 +6,6 @@ inquisitorHeroes = [
 
 revelHeroes = [
   new Hero("Batman", "batman.gif", "test", 200, 30, 500, "revels", 2, 4, 1),
-  new Hero("Batdog", "batdog.jpg", "test", 200, 30, 500, "revels", 2, 4, 1),
+  new Hero("Batdog", "batdog.png", "test", 200, 30, 500, "revels", 2, 4, 1),
   new Hero("Batcat", "batcat.png", "test", 200, 30, 500, "revels", 2, 4, 1)
 ]

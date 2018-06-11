@@ -36,7 +36,6 @@ Game.prototype.startBattle = function() {
 // TURNS
 
 Game.prototype.passTurn = function() {
-  debugger;
   this.board.clear();
   this.activePlayer.passTurn(this.display);
   if (this.activePlayer.faction === "inquisitors" || null) {
@@ -90,7 +89,7 @@ Game.prototype.previewMove = function() {
 
 Game.prototype.moveHero = function(hero, x, y) {
   hero.delete();
-  hero.move(x, y);
+  hero.move(x, y, this.board);
   hero.draw();
   this.board.clear();
   hero.finishAction(this.activePlayer, this.display);
@@ -118,10 +117,14 @@ Game.prototype.previewMeleeAttack = function() {
   }
   this.board.clear();
   hero.startAction(this.activePlayer);
-  var heroes = this.board.checkMeleeAttack(hero);
-  if (heroes.length > 0) {
-    hero.meleeAttack(heroes[0]);
-    this.display.warn(hero.name + " inflicted " + hero.meleeDamage + " points of damage to " + heroes[0].name);
+  var targets = this.board.checkMeleeAttack(hero);
+  if (targets.length > 0) {
+    var target = targets[0].id;
+    this.inactivePlayer.heroes.forEach(hero => {
+      if (hero.name === target) target = hero;
+    });
+    hero.meleeAttack(target);
+    this.display.warn(hero.name + " inflicted " + hero.meleeDamage + " points of damage to " + target.name);
     hero.finishAction(this.activePlayer, this.display);
   } else {
     this.display.warn("Oops! You don't reach any enemy heroes...");
@@ -184,10 +187,10 @@ Game.prototype.addHero = function(hero, player) {
         this.display.warn("There can only be 2 heroes per zone!!");
         return false;
       }
-      hero.move(x, y);
+      hero.move(x, y, this.board);
       hero.draw();
       this.board.clear();
-      player.addHero(hero, this.board);
+      player.addHero(hero);
       this.display.checkDeployStatus(this.activePlayer);
     }.bind(this));
   });
@@ -215,7 +218,7 @@ Game.prototype.setLeader = function(player) {
           //   hero.removeClickListener();
           // })
           if (this.activePhase === "deploy") this.display.checkDeployStatus(this.activePlayer);
-          this.display.warn("Leader asigned to " +this.display.capitalizeFirstLetter(player.faction));
+          this.display.warn("Leader asigned to " +this.display.capitalizeFirstLetter(player.faction) + "!!! ");
         }
       })
     }.bind(this));

@@ -2,26 +2,29 @@ function Display () {
   this.fixMessage = "";
   this.tempMessage = '';
   this.display = null;
+  this.warnings = null
   this.interval = null;
 }
 
 Display.prototype.print = function(message) {
-  if (this.interval) clearInterval(this.interval);
   this.display.text(message);
 }
 
 Display.prototype.warn = function(message) {
-  if (this.interval) clearInterval(this.interval);
-  this.tempMessage = message; 
-  this.print(this.tempMessage);
+  this.warnings.text(message);
+  this.warnings.removeClass("hidden");
   this.interval = setTimeout(function(){
-    this.print(this.fixMessage);
-    this.tempMessage = '';
-  }.bind(this), 3000);
+    this.warnings.text('');
+    this.warnings.addClass("hidden");
+  }.bind(this), 5000);
 }
 
 Display.prototype.getDisplay = function() {
-  this.display = $(".display p");
+  this.display = $(".display");
+}
+
+Display.prototype.getWarnings = function() {
+  this.warnings = $(".warnings");
 }
 
 Display.prototype.checkTurnStatus = function(player) {

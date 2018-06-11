@@ -14,5 +14,6 @@ $(document).ready(function() {
   $("#meleeAttack").click(function(){game.previewMeleeAttack()});
   $("#rangeAttack").click(function(){game.previewRangeAttack(game.selectedHero)});
   game.display.getDisplay();
+  game.display.getWarnings();
 });
 
