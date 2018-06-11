@@ -2,6 +2,7 @@ function Display () {
   this.fixMessage = "";
   this.tempMessage = '';
   this.display = null;
+  this.interval = null;
 }
 
 Display.prototype.print = function(message) {
@@ -23,8 +24,12 @@ Display.prototype.getDisplay = function() {
   this.display = $(".display p");
 }
 
-Display.prototype.printTurn = function(player, turnCounter) {
-  this.fixMessage = "It's " + this.capitalizeFirstLetter(player.faction) + " turn #" + turnCounter + ". You got " + player.actions + " actions remaining";
+Display.prototype.checkTurnStatus = function(player) {
+  var actions = 0;
+  player.heroes.forEach(hero =>{
+    actions += hero.actions;
+  });
+  this.fixMessage = "It's " + this.capitalizeFirstLetter(player.faction) + " turn #" + player.turn + ". You got " + actions + " actions remaining";
   this.print(this.fixMessage);
 }
 
@@ -37,16 +42,15 @@ Display.prototype.checkDeployStatus = function(players) {
   var remRevHeroes = 3 - players[1].heroes.length;
   var inqHeroes = '';
   var revHeroes = '';
-  var inqLeader = "";
-  var revLeader = "";
-  console.log(remInqHeroes);
+  var inqLeader = '';
+  var revLeader = '';
   inqHeroes = (remInqHeroes > 0 && !players[0].leader) ? "Inquisitors must deploy " + remInqHeroes + " more heroes. " : '';
   revHeroes = (remRevHeroes > 0 && !players[1].leader) ? "Revels must deploy " + remRevHeroes + " more heroes. " : '';
-  inqLeader = (inqHeroes === '') ? "Inquisitors must choose their Leader. " : "";
-  revLeader = (revHeroes === '') ? "Revels must choose their Leader. " : "";
+  inqLeader = (!players[0].hasLeader() && remInqHeroes === 0) ? "Inquisitors must choose their Leader. " : "";
+  revLeader = (!players[1].hasLeader() && remRevHeroes === 0) ? "Revels must choose their Leader. " : "";
   this.fixMessage = inqHeroes + revHeroes + inqLeader + revLeader;
-  if (remInqHeroes === 0 && remRevHeroes === 0 && players[0].leader && players[1].leader) {
-    this.fixMessage = "All armys are setted up! Now you can start The Battle when you are ready";
+  if (remInqHeroes === 0 && remRevHeroes === 0 && players[0].hasLeader() && players[1].hasLeader()) {
+    this.fixMessage = "All armys are setted up! Now you can start The Battle";
   }
   this.print(this.fixMessage);
 }

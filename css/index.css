@@ -23,6 +23,7 @@ h1 {
 }
 
 .zone {
+  padding: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -49,6 +50,7 @@ h1 {
 }
 
 .selected {
+  padding: 2px;
   border: 2px solid red;
 }
 
