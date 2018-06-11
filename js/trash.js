@@ -16,6 +16,7 @@ comentar codigo:
 
 capacidad de mejora del juego
   qué habrías hecho si tuvieras más tiempo
+  capaz de hacer el juego que quiera
 
 
 

@@ -15,10 +15,10 @@ function Unit (name, img, description, meleeDamage, rangeDamage, health, faction
 
 Unit.prototype.startAction = function(player) {
   player.heroes.forEach(hero => {
-    if (hero.name !== this.name) {
+    // if (hero.name !== this.name) {
       hero.removeClickable();
       hero.removeClickListener();
-    }
+    // }
   });
 }
 
@@ -26,6 +26,7 @@ Unit.prototype.finishAction = function(player, display) {
   this.actions--;
   this.active = false;
   this.removeSelected();
+  debugger;
   player.heroes.forEach(hero => {
     if (hero.actions > 0) {
       hero.setClickListener(display);

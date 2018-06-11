@@ -43,6 +43,7 @@ h1 {
 
 .clickable {
   cursor: pointer;
+  background-color: lightgreen;
 }
 
 .selectable {

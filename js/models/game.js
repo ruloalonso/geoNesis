@@ -29,13 +29,14 @@ Game.prototype.startBattle = function() {
   this.players[0].turn = 0;
   this.players[1].turn = 0;
   this.activePlayer = this.players[0];
-  this.activePlayer.startTurn(this.display);
+  // this.passTurn();
 }
 
 
 // TURNS
 
 Game.prototype.passTurn = function() {
+  debugger;
   this.board.clear();
   this.activePlayer.passTurn(this.display);
   if (this.activePlayer.faction === "inquisitors" || null) {
@@ -50,7 +51,7 @@ Game.prototype.passTurn = function() {
     $(".inquisitor-buttons").removeClass("hidden");
     if (this.activePlayer.faction === "revels") this.startBattle();
   }
-  if (this.activePhase !== "battle") this.activePlayer.startTurn(this.display);
+  if (this.activePhase === 'battle') this.activePlayer.startTurn(this.display);
 }
 
 
@@ -115,11 +116,13 @@ Game.prototype.previewMeleeAttack = function() {
     this.display.warn("You must select a Hero before moving it!");
     return false;
   }
+  this.board.clear();
+  hero.startAction(this.activePlayer);
   var heroes = this.board.checkMeleeAttack(hero);
   if (heroes.length > 0) {
     hero.meleeAttack(heroes[0]);
     this.display.warn(hero.name + " inflicted " + hero.meleeDamage + " points of damage to " + heroes[0].name);
-    hero.finishAction(this.display);
+    hero.finishAction(this.activePlayer, this.display);
   } else {
     this.display.warn("Oops! You don't reach any enemy heroes...");
   }
@@ -136,7 +139,7 @@ Game.prototype.previewRangeAttack = function(hero) {
       this.display.warn(hero.name + " inflicted " + hero.rangeDamage + " points of damage to " + this.inactivePlayer.leader.name);
       this.inactivePlayer.leader.removeClickListener();
       this.inactivePlayer.leader.removeClickable();
-      hero.finishAction(this.display);
+      hero.finishAction(this.activePlayer, this.display);
     }.bind(this));
   })
   hero.removeClickable();

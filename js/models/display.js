@@ -30,7 +30,6 @@ Display.prototype.checkTurnStatus = function(player) {
     actions += hero.actions;
   });
   this.fixMessage = "It's " + this.capitalizeFirstLetter(player.faction) + " turn #" + player.turn + ". You got " + actions + " actions remaining";
-  debugger;
   this.print(this.fixMessage);
 }
 
