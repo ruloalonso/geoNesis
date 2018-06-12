@@ -19,7 +19,6 @@ Board.prototype.checkSurroundings = function(hero, distance) {
     for (var y = 0; y < this.height; y++) {
       if ((hero.x - x >= -distance && hero.x - x <= distance) &&
        (hero.y - y >= -distance && hero.y - y <= distance)) {
-        // debugger;
         if(!(hero.x === x && hero.y === y)){
           zones.push([x,y]); 
         }

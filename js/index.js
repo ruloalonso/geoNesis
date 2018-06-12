@@ -12,7 +12,7 @@ $(document).ready(function() {
   $("#setRevelLeader").click(function(){game.setLeader(game.players[1])});
   $("#move").click(function(){game.previewMove()});
   $("#meleeAttack").click(function(){game.previewMeleeAttack()});
-  $("#rangeAttack").click(function(){game.previewRangeAttack(game.selectedHero)});
+  $("#rangeAttack").click(function(){game.previewRangeAttack()});
   game.display.getDisplay();
   game.display.getWarnings();
 });

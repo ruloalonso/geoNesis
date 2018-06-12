@@ -29,7 +29,7 @@ Game.prototype.startBattle = function() {
   this.players[0].turn = 0;
   this.players[1].turn = 0;
   this.activePlayer = this.players[0];
-  // this.passTurn();
+  this.inactivePlayer = this.players[1];
 }
 
 
@@ -74,7 +74,6 @@ Game.prototype.previewMove = function() {
     $(zone).click(function(clicked) {
       var x = $(clicked.currentTarget).data("x");
       var y = $(clicked.currentTarget).data("y");
-      console.log(this.board.zones[x][y].heroes);
       if (this.board.zones[x][y].heroes.length > 1) {
         this.display.warn("There can only be 2 heroes per zone!!");
         return false;
@@ -124,24 +123,40 @@ Game.prototype.previewMeleeAttack = function() {
       if (hero.name === target) target = hero;
     });
     hero.meleeAttack(target);
-    this.display.warn(hero.name + " inflicted " + hero.meleeDamage + " points of damage to " + target.name);
+    this.display.warn("OUCHIE!!!!! " + hero.name + " inflicted " + hero.meleeDamage + " points of damage to " + target.name + ". ");
+    this.checkDead(target);
     hero.finishAction(this.activePlayer, this.display);
   } else {
     this.display.warn("Oops! You don't reach any enemy heroes...");
   }
 }
 
-Game.prototype.previewRangeAttack = function(hero) {
-  if (!this.checkAttack()) return false;
+Game.prototype.previewRangeAttack = function() {
+  this.board.clear();
+  var hero = this.getActiveHero();
+  debugger;
+  if (hero.range === 0) {
+    this.display.warn("Oops, doggies doesn't throw hairballs....");
+    return false;
+  }
+  hero.startAction(this.activePlayer);
   this.checkZonesToRangeAttack(hero).forEach(zone => {
     zone = this.board.getZone(zone[0], zone[1]);
     $(zone).addClass("selectable");
-    $(zone).find('div').not("#" + hero.name).addClass("clickable");
-    $(zone).find('div').not("#" + hero.name).click(function(clicked) {
-      hero.rangeAttack(this.inactivePlayer.leader);
-      this.display.warn(hero.name + " inflicted " + hero.rangeDamage + " points of damage to " + this.inactivePlayer.leader.name);
-      this.inactivePlayer.leader.removeClickListener();
-      this.inactivePlayer.leader.removeClickable();
+    $(zone).find('div').not("#" + hero.name).not("." + hero.faction).addClass("clickable");
+    $(zone).find('div').not("#" + hero.name).not("." + hero.faction).click(function(clicked) {
+      var target = clicked.currentTarget.id;
+      this.inactivePlayer.heroes.forEach(hero => {
+        if (hero.name === target) target = hero;
+      });
+      hero.rangeAttack(target);
+      this.inactivePlayer.heroes.forEach(hero => {
+        hero.removeClickable();
+        hero.removeClickListener();
+      });
+      this.display.warn("OUCHIE!!!!! " + hero.name + " inflicted " + hero.rangeDamage + " points of damage to " + target.name + ". ");
+      this.board.clear();
+      this.checkDead(target);
       hero.finishAction(this.activePlayer, this.display);
     }.bind(this));
   })
@@ -151,9 +166,20 @@ Game.prototype.previewRangeAttack = function(hero) {
 }
 
 Game.prototype.checkZonesToRangeAttack = function(hero) {
-  this.display.fixMessage = "Select which hero you want to attack";
-  this.display.print(this.display.fixMessage);
+  this.display.print("Select which hero you want to attack");
   return this.board.checkRangeAttack(hero);
+}
+
+Game.prototype.checkDead = function(hero) {
+  if (hero.health <= 0) {
+    if (hero.leader) this.gameOver();
+    this.inactivePlayer.removeHero(hero, this.display, this.board);
+  }
+}
+
+Game.prototype.gameOver = function() {
+  alert("CONGRATULATIONS!!!!! You killed the Leader :))))");
+  alert("follow me on twitter: @ruloalonso_")
 }
 
 

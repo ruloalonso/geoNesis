@@ -79,7 +79,6 @@ Unit.prototype.removeSelected = function() {
 // ACTIONS
 
 Unit.prototype.move = function(x, y, board) {
-  debugger;
   board.zones[this.x][this.y].heroes.splice(board.zones[this.x][this.y].heroes.indexOf(this), 1);  
   this.x = x;
   this.y = y;
@@ -111,5 +110,5 @@ Unit.prototype.meleeAttack = function(hero) {
 }
 
 Unit.prototype.rangeAttack = function(hero) {
-  hero.health -= this.rangeAttack;
+  hero.health -= this.rangeDamage;
 }

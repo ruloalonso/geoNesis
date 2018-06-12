@@ -3,7 +3,6 @@ function Display () {
   this.tempMessage = '';
   this.display = null;
   this.warnings = null
-  this.interval = null;
 }
 
 Display.prototype.print = function(message) {
@@ -13,7 +12,7 @@ Display.prototype.print = function(message) {
 Display.prototype.warn = function(message) {
   this.warnings.text(message);
   this.warnings.removeClass("hidden");
-  this.interval = setTimeout(function(){
+  setTimeout(function(){
     this.warnings.text('');
     this.warnings.addClass("hidden");
   }.bind(this), 5000);
