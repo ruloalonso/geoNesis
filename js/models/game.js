@@ -114,10 +114,10 @@ Game.prototype.previewMeleeAttack = function() {
     this.display.warn("You must select a Hero before moving it!");
     return false;
   }
-  this.board.clear();
-  hero.startAction(this.activePlayer);
   var targets = this.board.checkMeleeAttack(hero);
   if (targets.length > 0) {
+    this.board.clear();
+    hero.startAction(this.activePlayer);  
     var target = targets[0].id;
     this.inactivePlayer.heroes.forEach(hero => {
       if (hero.name === target) target = hero;
@@ -128,13 +128,13 @@ Game.prototype.previewMeleeAttack = function() {
     hero.finishAction(this.activePlayer, this.display);
   } else {
     this.display.warn("Oops! You don't reach any enemy heroes...");
+    return false;
   }
 }
 
 Game.prototype.previewRangeAttack = function() {
   this.board.clear();
   var hero = this.getActiveHero();
-  debugger;
   if (hero.range === 0) {
     this.display.warn("Oops, doggies doesn't throw hairballs....");
     return false;
@@ -180,6 +180,17 @@ Game.prototype.checkDead = function(hero) {
 Game.prototype.gameOver = function() {
   alert("CONGRATULATIONS!!!!! You killed the Leader :))))");
   alert("follow me on twitter: @ruloalonso_")
+}
+
+Game.prototype.seeHealth = function() {
+  var result = ''
+  this.players.forEach(player =>  {
+    player.heroes.forEach(hero => {
+      result+= hero.name + ": ";
+      result+= hero.health + ". ";
+     })
+  })
+  this.display.warn(result);
 }
 
 

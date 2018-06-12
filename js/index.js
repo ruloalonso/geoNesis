@@ -13,6 +13,7 @@ $(document).ready(function() {
   $("#move").click(function(){game.previewMove()});
   $("#meleeAttack").click(function(){game.previewMeleeAttack()});
   $("#rangeAttack").click(function(){game.previewRangeAttack()});
+  $("#health").click(function(){game.seeHealth()});
   game.display.getDisplay();
   game.display.getWarnings();
 });

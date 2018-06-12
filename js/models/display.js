@@ -2,7 +2,8 @@ function Display () {
   this.fixMessage = "";
   this.tempMessage = '';
   this.display = null;
-  this.warnings = null
+  this.warnings = null;
+  this.interval = null;
 }
 
 Display.prototype.print = function(message) {
@@ -12,7 +13,8 @@ Display.prototype.print = function(message) {
 Display.prototype.warn = function(message) {
   this.warnings.text(message);
   this.warnings.removeClass("hidden");
-  setTimeout(function(){
+  clearInterval(this.interval);
+  this.interval = setTimeout(function(){
     this.warnings.text('');
     this.warnings.addClass("hidden");
   }.bind(this), 5000);
